@@ -1,6 +1,8 @@
 import time
 import requests
 import os
+from flask import Flask
+from threading import Thread
 
 # ======== KONFIGURASI =========
 TOKEN = "8377497750:AAF0adxWvEJC3CylgnqJpu9wE5kHf9NofK4"  # token bot kamu
@@ -32,35 +34,11 @@ promosi_list = [
             "📱 𝙇𝙄𝙉𝙆 𝘿𝘼𝙁𝙏𝘼𝙍 : https://mez.ink/pwktoto"
         ),
         "image": r"C:\Users\PC\Documents\Promo PWK (7).png"
-    },
-    {
-        "text": (
-            "💡 PROMO 3 💡\n"
-            "Beli 1 dapat 2 untuk produk elektronik pilihan!\n"
-            "🔌 Lihat sekarang: https://tokoku.com/elektronik"
-        ),
-        "image": "https://example.com/elektronik.jpg"
-    },
-    {
-        "text": (
-            "🌈 PROMO 4 🌈\n"
-            "Voucher Rp25.000 untuk pengguna baru!\n"
-            "🎁 Klaim di: https://tokoku.com/voucher"
-        ),
-        "image": "https://example.com/voucher.jpg"
-    },
-    {
-        "text": (
-            "🎉 PROMO 5 🎉\n"
-            "Diskon besar-besaran akhir pekan ini!\n"
-            "🔥 Buruan: https://tokoku.com/superdeal"
-        ),
-        "image": "https://example.com/superdeal.jpg"
     }
 ]
 
 # ==========================================
-
+# FUNGSI PENGIRIM PESAN
 def kirim_pesan(text):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     data = {"chat_id": CHAT_ID, "text": text}
@@ -85,8 +63,24 @@ def kirim_gambar_dari_url(photo_url, caption=None):
     print("🌐 Kirim gambar (URL):", r.status_code, r.text)
 
 # ==========================================
+# KEEP ALIVE (SERVER UNTUK RENDER)
+app = Flask('')
 
+@app.route('/')
+def home():
+    return "Bot PWKSTORE aktif 🚀"
+
+def run():
+    app.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = Thread(target=run)
+    t.start()
+
+# ==========================================
+# PROGRAM UTAMA
 if __name__ == "__main__":
+    keep_alive()  # <<=== inilah yang penting !!!
     print("🤖 Bot promosi otomatis aktif! Tekan Ctrl+C untuk berhenti.\n")
     index = 0
 
@@ -100,7 +94,7 @@ if __name__ == "__main__":
             else:
                 kirim_gambar_dari_url(promo["image"], promo["text"])
 
-            index = (index + 1) % len(promosi_list)  # loop ke promo berikutnya
+            index = (index + 1) % len(promosi_list)
         except Exception as e:
             print("⚠️ Terjadi error:", e)
 
